@@ -53,9 +53,9 @@ class LayerNormalization(nn.Module):
 
 class FeedForwardBlock(nn.Module):
     def __init__(self, d_model:int, d_ff:int, dropout:float) -> None:
-        super().__init()
+        super().__init__()
         self.linear1 = nn.Linear(d_model, d_ff)  #w1 and B1
-        self.dropout = nn.Dropout = nn.Dropout(dropout)
+        self.dropout = nn.Dropout(dropout)
         self.linear2 = nn.Linear(d_ff, d_model) #w2 and b2
         self.relu = nn.ReLU()
 
@@ -137,7 +137,7 @@ class EncoderBlock(nn.Module):
         self.residual_connections = nn.ModuleList([ResidualConnection(dropout) for _ in range(2)])
 
     def forward(self, x, src_mask):     #masking is to hide the padding with other elements not the future thing
-        x = self.residual_connections[0](x, lambda x: self.self_attention_block(x,x,x, src_mask))
+        x = self.residual_connections[0](x, lambda x: self.self_Attention_block(x,x,x, src_mask))
         x = self.residual_connections[1](x, self.feed_forward_block)
         return x
     
@@ -182,7 +182,7 @@ class Decoder(nn.Module):
         return self.norm(x)
     
 class ProjectionLayer(nn.Module):
-    def __init(self, d_model:int, vocab_size:int) ->None:
+    def __init__(self, d_model:int, vocab_size:int) ->None:
         super().__init__()
         self.proj = nn.Linear(d_model, vocab_size)
 
@@ -192,7 +192,7 @@ class ProjectionLayer(nn.Module):
         return torch.log_softmax(self.proj(x), dim = -1)
     
 
-class transformer(nn.module):
+class transformer(nn.Module):
 
     def __init__(self, encoder:Encoder, decoder: Decoder, src_embd:InputEmbeddings, trg_embd: InputEmbeddings, src_pos:PositionalEncoding, trg_pos:PositionalEncoding, projection_layer: ProjectionLayer):
         super().__init__()
@@ -235,7 +235,7 @@ def build_transformer(src_vocab_size: int, trg_vocab_size: int, src_seq_len: int
     for _ in range(N):
         encoder_self_attention_block = MultiHeadAttention(d_model, h,  dropout)
         feed_forward_block = FeedForwardBlock(d_model, d_ff, dropout)
-        encoder_block = EncoderBlock(encoder_self_attention_block, feed_forward_block, dropout)
+        encoder_block = EncoderBlock(dropout, encoder_self_attention_block, feed_forward_block)
         encoder_blocks.append(encoder_block)
 
 
@@ -258,17 +258,17 @@ def build_transformer(src_vocab_size: int, trg_vocab_size: int, src_seq_len: int
 
     projection_layer = ProjectionLayer(d_model, trg_vocab_size)
 
-    transformer= transformer(encoder, decoder, src_embd, trg_embd, src_pos, trg_pos, projection_layer)
+    transformers= transformer(encoder, decoder, src_embd, trg_embd, src_pos, trg_pos, projection_layer)
 
 
     # Intialise the param
 
-    for p in transformer.parameters():
+    for p in transformers.parameters():
         if p.dim() > 1:
             nn.init.xavier_uniform(p)
 
 
-    return transformer
+    return transformers
 
       
 
